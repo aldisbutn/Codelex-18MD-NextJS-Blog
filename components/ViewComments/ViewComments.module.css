@@ -1,0 +1,38 @@
+.commentsWrapper {
+  width: 100%;
+  margin: 20px auto;
+  max-width: 1025px;
+  display: flex;
+  flex-direction: column;
+}
+
+.commentWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.commentInfoWrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.commentContent {
+  color: #f6d2ef;
+}
+
+.commentDeleteButton {
+  max-width: 160px;
+}
+
+.postLink {
+  text-decoration: none;
+}
+
+.loadingMessage {
+  position: relative;
+  top: 250px;
+  display: flex;
+  justify-content: center;
+}

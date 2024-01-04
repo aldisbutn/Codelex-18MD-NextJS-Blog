@@ -1,0 +1,86 @@
+.postWrapper {
+  width: 100%;
+  max-width: 1025px;
+  margin: 20px auto;
+  position: relative;
+}
+
+.postTitle {
+  font-size: 45px;
+  text-align: center;
+}
+
+.postBottom {
+  background-color: #192134;
+  padding: 10px;
+}
+
+.postContent {
+  font-size: 20px;
+}
+
+.postInfoWrapper {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+}
+
+.postInfo {
+  text-decoration: none;
+  margin: 0;
+}
+
+.postCommentsWrapper {
+  display: flex;
+  flex-direction: column;
+}
+
+.postCommentWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.postCommentInfoWrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.postCommentContent {
+  color: #f6d2ef;
+}
+
+.commentDeleteButton,
+.addCommentButton {
+  max-width: 160px;
+}
+
+.addCommentForm {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.addCommentInput {
+  max-width: 200px;
+}
+
+.addCommentTextArea {
+  resize: none;
+  height: 100px;
+  max-width: 1025px;
+}
+
+.postDeleteButton {
+  position: absolute;
+  right: 5px;
+  top: 67px;
+}
+
+.loadingMessage {
+  position: relative;
+  top: 250px;
+  display: flex;
+  justify-content: center;
+}

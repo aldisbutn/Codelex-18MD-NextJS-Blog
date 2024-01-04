@@ -1,0 +1,10 @@
+.navbarBody {
+  background-color: #18377e;
+  margin-bottom: 25px;
+}
+
+.signInButtonWrapper {
+    position: absolute;
+    right: 15px;
+    top: 10px;
+}
