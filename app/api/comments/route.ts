@@ -1,6 +1,7 @@
 import executeQuery from '@/services/mysqlDB/db';
 import { NextResponse, NextRequest } from 'next/server';
 
+// Get all comments
 export const GET = async () => {
   const comments = await executeQuery({
     query: 'SELECT * FROM Comments',
@@ -9,6 +10,7 @@ export const GET = async () => {
   return NextResponse.json(comments);
 };
 
+// Post new comment
 export const POST = async (req: NextRequest) => {
   try {
     const { postID, author, content, createdAt } = await req.json();

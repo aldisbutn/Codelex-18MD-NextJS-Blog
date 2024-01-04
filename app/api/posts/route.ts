@@ -1,6 +1,7 @@
 import executeQuery from '@/services/mysqlDB/db';
 import { NextResponse, NextRequest } from 'next/server';
 
+// Get all posts
 export const GET = async () => {
   const posts = await executeQuery({
     query: 'SELECT * FROM Posts',
@@ -9,6 +10,7 @@ export const GET = async () => {
   return NextResponse.json({ posts });
 };
 
+// Post new post
 export const POST = async (req: NextRequest) => {
   try {
     const { userID, categoryID, title, content, createdAt, imageURL } = await req.json();

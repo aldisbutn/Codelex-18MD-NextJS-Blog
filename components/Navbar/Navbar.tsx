@@ -1,11 +1,11 @@
 'use client';
 
+import Style from '@/components/Navbar/Navbar.module.css';
+import SignInOutButton from '../SignInOutButton/SignInOutButton';
 import Container from 'react-bootstrap/Container';
 import Nav from 'react-bootstrap/Nav';
 import BootstrapNavbar from 'react-bootstrap/Navbar';
 import NavDropdown from 'react-bootstrap/NavDropdown';
-import Style from '@/components/Navbar/Navbar.module.css';
-import SignInOutButton from '../SignInOutButton/SignInOutButton';
 import { useSession } from 'next-auth/react';
 
 const Navbar = () => {
@@ -28,6 +28,7 @@ const Navbar = () => {
                 <NavDropdown.Item href='/posts/category/4'>Lifestyle</NavDropdown.Item>
                 <NavDropdown.Item href='/posts/category/5'>Other</NavDropdown.Item>
               </NavDropdown>
+              {/* If user is logged in show create post and view comments links */}
               {!session ? (
                 <></>
               ) : (

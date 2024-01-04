@@ -1,25 +1,27 @@
 'use client';
 
-import { Post, PostComment } from '@/types/types';
+import Style from '@/components/ViewComments/ViewComments.module.css';
 import useDeleteComment from '@/utils/useDeleteComment';
 import useGetComments from '@/utils/useGetComments';
 import useGetPosts from '@/utils/useGetPosts';
-import { MouseEvent, useEffect, useState } from 'react';
-import Style from '@/components/ViewComments/ViewComments.module.css';
-import { getSession } from 'next-auth/react';
-import { Button } from 'react-bootstrap';
-import { format, parseISO } from 'date-fns';
+import { Post, PostComment } from '@/types/types';
 import Link from 'next/link';
 import { toast } from 'react-toastify';
-import { useRouter } from 'next/navigation';
+import { Button } from 'react-bootstrap';
+import { MouseEvent, useEffect, useState } from 'react';
+import { getSession } from 'next-auth/react';
 import { Session } from 'next-auth';
+import { useRouter } from 'next/navigation';
+import { format, parseISO } from 'date-fns';
 
 const ViewComments = () => {
+  const router = useRouter();
+
   const [comments, setComments] = useState<PostComment[]>([]);
   const [posts, setPosts] = useState<Post[]>();
   const [session, setSession] = useState<Session | null>(null);
-  const router = useRouter();
 
+  // Function to check if user is logged in, if not redirect to sign in page
   const sessionChecker = async () => {
     const session = await getSession();
     if (session === null) {
@@ -28,6 +30,7 @@ const ViewComments = () => {
     setSession(session);
   };
 
+  // Initial data fetch - set comments and posts and check if user is logged in
   useEffect(() => {
     const fetchData = async () => {
       const posts = await useGetPosts();
@@ -39,16 +42,19 @@ const ViewComments = () => {
     fetchData();
   }, []);
 
+  // Function to find the post title by ID
   const findPostByID = (id: number) => {
     const post = posts?.find((post) => post.postID === id);
     return post?.title;
   };
 
+  // Function to format the date
   const formatDateForComment = (date: string) => {
     const commentDate = parseISO(date);
     return format(commentDate, 'dd/MM/yyyy');
   };
 
+  // Handle comment delete - prevent default, delete comment, update comments and show toast
   const handleCommentDelete = async (e: MouseEvent<HTMLButtonElement, globalThis.MouseEvent>, commentID: number) => {
     e.preventDefault();
     await useDeleteComment({ commentID });
@@ -59,6 +65,7 @@ const ViewComments = () => {
     });
   };
 
+  // If session is null, show loading message till it redirects to sign in page
   if (!session) {
     return (
       <div className={Style.loadingMessage}>
@@ -67,7 +74,8 @@ const ViewComments = () => {
     );
   }
 
-  if (session !== null) {
+  // If user is logged in show all comments with delete button
+  if (session) {
     return (
       <div className={Style.commentsWrapper}>
         {comments.length > 0 ? (
@@ -77,12 +85,10 @@ const ViewComments = () => {
                 <h5>Author: {comment.author}</h5>
                 <h6>Posted at: {formatDateForComment(comment.createdAt)}</h6>
               </div>
-
               <h4 className={Style.commentContent}>{comment.content}</h4>
               <Link href={`/posts/${comment.postID}`} className={Style.postLink}>
                 <h6>{findPostByID(comment.postID)}</h6>
               </Link>
-
               <Button
                 variant='outline-danger'
                 className={Style.commentDeleteButton}

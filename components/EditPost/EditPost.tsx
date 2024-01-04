@@ -1,7 +1,13 @@
 'use client';
-import { Post } from '@/types/types';
+
+import Style from '@/components/EditPost/EditPost.module.css';
 import useEditPost from '@/utils/useEditPost';
+import { Post } from '@/types/types';
+import { Button } from 'react-bootstrap';
 import { useRouter } from 'next/navigation';
+import { toast } from 'react-toastify';
+import { getSession } from 'next-auth/react';
+import { Session } from 'next-auth';
 import { FormEvent, useEffect, useState } from 'react';
 import { ContentState, convertToRaw, EditorState } from 'draft-js';
 import dynamic from 'next/dynamic';
@@ -9,24 +15,21 @@ const Editor = dynamic(() => import('react-draft-wysiwyg').then((mod) => mod.Edi
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import draftToHtml from 'draftjs-to-html';
 import htmlToDraft from 'html-to-draftjs';
-import Style from '@/components/EditPost/EditPost.module.css';
-import { Button } from 'react-bootstrap';
-import { toast } from 'react-toastify';
-import { getSession } from 'next-auth/react';
-import { Session } from 'next-auth';
 
 const EditPost = ({ params }: { params: { id: number } }) => {
+  const router = useRouter();
+  const [session, setSession] = useState<Session | null>(null);
+
   const postID = params.id;
   const userID = 1;
-  const [session, setSession] = useState<Session | null>(null);
   const [categoryID, setCategoryID] = useState(0);
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [createdAt, setCreatedAt] = useState('');
   const [imageURL, setImageURL] = useState('');
   const [editorState, setEditorState] = useState(() => EditorState.createEmpty());
-  const router = useRouter();
 
+  // Function to check if user is logged in, if not redirect to sign in page
   const sessionChecker = async () => {
     const session = await getSession();
     if (session === null) {
@@ -35,6 +38,7 @@ const EditPost = ({ params }: { params: { id: number } }) => {
     setSession(session);
   };
 
+  // Initial data fetch - set post data and check if user is logged in
   useEffect(() => {
     const fetchData = async () => {
       await sessionChecker();
@@ -50,6 +54,7 @@ const EditPost = ({ params }: { params: { id: number } }) => {
     fetchData();
   }, []);
 
+  // Set post data
   const setPostData = (data: Post) => {
     setCategoryID(data.categoryID);
     setTitle(data.title);
@@ -58,6 +63,7 @@ const EditPost = ({ params }: { params: { id: number } }) => {
     setImageURL(data.imageURL);
   };
 
+  // Handle edit - prevent default, edit post, redirect to home page and show toast
   const handleEdit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     useEditPost({ postID, userID, categoryID, title, content, createdAt, imageURL });
@@ -67,6 +73,7 @@ const EditPost = ({ params }: { params: { id: number } }) => {
     });
   };
 
+  // If session is null, show loading message till it redirects to sign in page
   if (!session) {
     return (
       <div className={Style.loadingMessage}>
@@ -75,7 +82,8 @@ const EditPost = ({ params }: { params: { id: number } }) => {
     );
   }
 
-  if (session !== null) {
+    // If user is logged in show the edit form
+  if (session) {
     return (
       <>
         <form className={Style.editPostForm} onSubmit={(e) => handleEdit(e)}>

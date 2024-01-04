@@ -1,20 +1,24 @@
 'use client';
 
+import Style from '@/components/CreatePost/CreatePost.module.css';
+import useSubmitPost from '@/utils/useSubmitPost';
+import { Button } from 'react-bootstrap';
+import { toast } from 'react-toastify';
 import { FormEvent, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { Session } from 'next-auth';
+import { getSession } from 'next-auth/react';
 import { convertToRaw, EditorState } from 'draft-js';
-import useSubmitPost from '@/utils/useSubmitPost';
 import dynamic from 'next/dynamic';
 const Editor = dynamic(() => import('react-draft-wysiwyg').then((mod) => mod.Editor), { ssr: false });
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import draftToHtml from 'draftjs-to-html';
-import Style from '@/components/CreatePost/CreatePost.module.css';
-import { Button } from 'react-bootstrap';
-import { toast } from 'react-toastify';
-import { Session } from 'next-auth';
-import { getSession } from 'next-auth/react';
 
 const CreatePost = () => {
+  const router = useRouter();
+  const [session, setSession] = useState<Session | null>(null);
+
+  // Initial state variables so the form can be cleared after submission
   const initialUserID = 1;
   const initialCategoryID = 1;
   const initialTitle = '';
@@ -22,17 +26,13 @@ const CreatePost = () => {
   const initialImageURL = '';
   const initialCreatedAt = new Date().toISOString();
 
-  const [session, setSession] = useState<Session | null>(null);
   const [userID] = useState(initialUserID);
   const [categoryID, setCategoryID] = useState(initialCategoryID);
   const [title, setTitle] = useState(initialTitle);
   const [content, setContent] = useState(initialContent);
   const [imageURL, setImageURL] = useState(initialImageURL);
   const [createdAt] = useState(initialCreatedAt);
-
   const [editorState, setEditorState] = useState(() => EditorState.createEmpty());
-
-  const router = useRouter();
 
   const sessionChecker = async () => {
     const session = await getSession();
@@ -42,6 +42,7 @@ const CreatePost = () => {
     setSession(session);
   };
 
+  // Initial data fetch - check if user is logged in
   useEffect(() => {
     const fetchData = async () => {
       await sessionChecker();
@@ -49,22 +50,21 @@ const CreatePost = () => {
     fetchData();
   }, []);
 
+  // Handle post submission - prevent default, submit post, clear form and show toast
   const handlePost = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
     await useSubmitPost({ userID, categoryID, title, content, createdAt, imageURL });
-
     setCategoryID(initialCategoryID);
     setTitle(initialTitle);
     setContent(initialContent);
     setImageURL(initialImageURL);
-
     router.push('/');
     toast.success('Post created successfully!', {
       theme: 'dark',
     });
   };
 
+  // If user is not logged in, show loading message till it redirects to sign in page
   if (!session) {
     return (
       <div className={Style.loadingMessage}>
@@ -73,7 +73,8 @@ const CreatePost = () => {
     );
   }
 
-  if (session !== null) {
+  // If user is logged in show the create post form
+  if (session) {
     return (
       <>
         <form className={Style.createPostForm} onSubmit={(e) => handlePost(e)}>

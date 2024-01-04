@@ -1,31 +1,34 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { Category, Post, PostComment } from '@/types/types';
+import Style from '@/components/ViewPosts/ViewPosts.module.css';
 import useGetPosts from '@/utils/useGetPosts';
+import useGetComments from '@/utils/useGetComments';
+import useGetCategories from '@/utils/useGetCategories';
+import { Category, Post, PostComment } from '@/types/types';
+import Image from 'next/image';
 import Link from 'next/link';
+import { Button } from 'react-bootstrap';
+import { Session } from 'next-auth';
 import { getSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import useGetComments from '@/utils/useGetComments';
-import Style from '@/components/ViewPosts/ViewPosts.module.css';
-import Image from 'next/image';
-import useGetCategories from '@/utils/useGetCategories';
-import { Button } from 'react-bootstrap';
 import { parseISO, format } from 'date-fns';
-import { Session } from 'next-auth';
+import { useEffect, useState } from 'react';
 
 const ViewPosts = () => {
+  const router = useRouter();
+
   const [posts, setPosts] = useState<Post[]>();
   const [comments, setComments] = useState<PostComment[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [session, setSession] = useState<Session | null>(null);
-  const router = useRouter();
 
+  // Function to check if user is logged in
   const sessionChecker = async () => {
     const session = await getSession();
     setSession(session);
   };
 
+  // Initial data fetch - set posts, comments and categories and check if user is logged in
   useEffect(() => {
     const fetchData = async () => {
       const posts = await useGetPosts();
@@ -34,28 +37,31 @@ const ViewPosts = () => {
       setPosts(posts);
       setComments(comments);
       setCategories(categories);
-      sessionChecker()
+      sessionChecker();
     };
-
     fetchData();
   }, []);
 
+  // Function to find the number of comments for a post
   const findCommentByIDReturnLength = (id: number) => {
     const commentsWithID = comments.filter((comment) => comment.postID === id);
     return commentsWithID.length;
   };
 
+  // Function to find the category name by ID
   const findCategoryByID = (id: number) => {
     const categoryByID = categories.find((category) => category.categoryID === id);
     return categoryByID?.categoryName;
   };
 
+  // Function to format the date
   const formatDateForPost = (date: string, id: number) => {
     const post = posts!.find((post) => post.postID === id);
     const postDate = parseISO(post!.createdAt);
     return format(postDate, 'dd/MM/yyyy');
   };
 
+  // If there are no posts, display a loading message
   if (!posts) {
     return (
       <div className={Style.loadingMessage}>
@@ -68,6 +74,8 @@ const ViewPosts = () => {
     <section className={Style.postsSection}>
       {posts.map((post) => (
         <div className={Style.postWrapper} key={post.postID}>
+          
+          {/* Image display */}
           <Image
             src={post.imageURL}
             alt={post.title}
@@ -78,9 +86,13 @@ const ViewPosts = () => {
             priority={true}
             className={Style.postImage}
           />
+
+          {/* Link that takes to the specific category post view  */}
           <Link href={`/posts/category/${post.categoryID}`} className={Style.categoryButton}>
             {findCategoryByID(post.categoryID)}
           </Link>
+
+          {/* Link that takes to the specific post view */}
           <Link href={`/posts/${post.postID}`} className={Style.postLink}>
             <div className={Style.textWrapper}>
               <h2 className={Style.postTitle}>{post.title}</h2>
@@ -88,7 +100,10 @@ const ViewPosts = () => {
             </div>
           </Link>
 
+          {/* Date display */}
           <h6 className={Style.postDate}>{formatDateForPost(post.createdAt, post.postID)}</h6>
+
+          {/* If user is not logged in, do not show edit button */}
           {session === null ? (
             <></>
           ) : (

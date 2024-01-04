@@ -2,6 +2,7 @@ import executeQuery from '@/services/mysqlDB/db';
 import { Post } from '@/types/types';
 import { NextResponse, NextRequest } from 'next/server';
 
+// Get post with provided ID
 export const GET = async (req: NextRequest, { params }: { params: { id: number } }) => {
   const postID = params.id;
   const post = (await executeQuery({
@@ -11,6 +12,7 @@ export const GET = async (req: NextRequest, { params }: { params: { id: number }
   return NextResponse.json(post[0]);
 };
 
+// Update post with provided ID
 export const PUT = async (req: NextRequest, { params }: { params: { id: number } }) => {
   try {
     const postID = params.id;
@@ -27,6 +29,7 @@ export const PUT = async (req: NextRequest, { params }: { params: { id: number }
   }
 };
 
+// Delete all comments where postID matches and delete post with provided ID
 export const DELETE = async (req: NextRequest, { params }: { params: { id: number } }) => {
   try {
     const postID = params.id;

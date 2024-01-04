@@ -1,5 +1,3 @@
-
-
 type useSubmitPostProps = {
   userID: number;
   categoryID: number;
@@ -31,6 +29,5 @@ const useSubmitPost = async ({ userID, categoryID, title, content, createdAt, im
     console.log(error);
   }
 };
-
 
 export default useSubmitPost;

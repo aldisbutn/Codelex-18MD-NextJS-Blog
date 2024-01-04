@@ -5,6 +5,7 @@ import { Button } from 'react-bootstrap';
 
 const SignInOutButton = () => {
   const { data: session } = useSession();
+  // Show either sign in or sign out button depending on if user is logged in
   return (
     <>
       {session ? (
