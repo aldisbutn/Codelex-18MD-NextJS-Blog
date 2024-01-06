@@ -1,4 +1,30 @@
-.html {
-    background-color: #111622;
+body {
+  background-color: #08132d !important;
 }
 
+.rdw-option-wrapper {
+  background-color: #a7bcee !important;
+  border-color: #a7bcee !important;
+}
+
+.rdw-dropdown-wrapper, .rdw-dropdown-selectedtext {
+  background-color: #a7bcee !important;
+  border-color: #a7bcee !important;
+  height: 20px !important;
+}
+
+.rdw-dropdown-selectedtext {
+    text-decoration: none !important;
+    color: black !important;
+}
+
+.rdw-dropdown-optionwrapper {
+    background-color: #a7bcee !important;
+    border-color: #a7bcee !important;
+    color: black !important;
+}
+
+.rdw-dropdownoption-active {
+    background-color: #18377e !important;
+    color: black !important;
+}
