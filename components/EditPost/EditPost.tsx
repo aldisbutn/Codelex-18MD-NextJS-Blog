@@ -15,6 +15,7 @@ const Editor = dynamic(() => import('react-draft-wysiwyg').then((mod) => mod.Edi
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import draftToHtml from 'draftjs-to-html';
 import htmlToDraft from 'html-to-draftjs';
+import revalidateTagAction from '@/app/actions';
 
 const EditPost = ({ params }: { params: { id: number } }) => {
   const router = useRouter();
@@ -67,7 +68,8 @@ const EditPost = ({ params }: { params: { id: number } }) => {
   const handleEdit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     useEditPost({ postID, userID, categoryID, title, content, createdAt, imageURL });
-    router.push('/');
+    revalidateTagAction('posts')
+    router.push(`/`);
     toast.success('Post edited successfully!', {
       theme: 'dark',
     });

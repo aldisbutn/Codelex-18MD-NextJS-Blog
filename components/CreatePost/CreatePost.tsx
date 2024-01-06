@@ -13,6 +13,7 @@ import dynamic from 'next/dynamic';
 const Editor = dynamic(() => import('react-draft-wysiwyg').then((mod) => mod.Editor), { ssr: false });
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import draftToHtml from 'draftjs-to-html';
+import revalidateTagAction from '@/app/actions';
 
 const CreatePost = () => {
   const router = useRouter();
@@ -34,6 +35,7 @@ const CreatePost = () => {
   const [createdAt] = useState(initialCreatedAt);
   const [editorState, setEditorState] = useState(() => EditorState.createEmpty());
 
+  // Function to check if user is logged in, if not redirect to sign in page
   const sessionChecker = async () => {
     const session = await getSession();
     if (session === null) {
@@ -58,7 +60,8 @@ const CreatePost = () => {
     setTitle(initialTitle);
     setContent(initialContent);
     setImageURL(initialImageURL);
-    router.push('/');
+    revalidateTagAction('posts')
+    router.push(`/`);
     toast.success('Post created successfully!', {
       theme: 'dark',
     });

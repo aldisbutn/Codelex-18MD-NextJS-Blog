@@ -1,98 +1,27 @@
-'use client';
-
 import Style from '@/components/ViewPostAndComments/ViewPostAndComments.module.css';
-import usePostComment from '@/utils/usePostComment';
-import useDeleteComment from '@/utils/useDeleteComment';
-import useDeletePost from '@/utils/useDeletePost';
+
 import useGetCategoriesByID from '@/utils/useGetCategoriesByID';
 import useGetCommentsByID from '@/utils/useGetCommentsByID';
 import useGetPostByID from '@/utils/useGetPostByID';
 import { Category, Post, PostComment } from '@/types/types';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Button } from 'react-bootstrap';
-import { toast } from 'react-toastify';
-import { getSession } from 'next-auth/react';
-import { Session } from 'next-auth';
-import { useRouter } from 'next/navigation';
+
 import { format, parseISO } from 'date-fns';
-import { FormEvent, useEffect, useState } from 'react';
-import { MouseEvent } from 'react';
 
-const ViewPostAndComments = ({ params }: { params: { id: number } }) => {
-  const router = useRouter();
+import AddComment from '../AddComment/AddComment';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { getServerSession } from 'next-auth';
+import DeleteCommentButton from '../Buttons/DeleteCommentButton/DeleteCommentButton';
+import DeletePostButton from '../Buttons/DeletePostButton/DeletePostButton';
+
+const ViewPostAndComments = async ({ params }: { params: { id: number } }) => {
   const postID = params.id;
-  const [session, setSession] = useState<Session | null>(null);
 
-  // State variables for post
-  const [post, setPost] = useState<Post>();
-  const [category, setCategory] = useState<Category>();
-  const [comments, setComments] = useState<PostComment[]>([]);
-
-  // State variables for comment
-  const [author, setAuthor] = useState('');
-  const [content, setContent] = useState('');
-  const [posting, setPosting] = useState(false);
-  const createdAt = new Date().toISOString();
-
-  // Function to check if user is logged in
-  const sessionChecker = async () => {
-    const session = await getSession();
-    setSession(session);
-  };
-
-  // Initial data fetch - set post, category and comments and check if user is logged in
-  useEffect(() => {
-    const fetchData = async () => {
-      const fetchedPost = await useGetPostByID(postID);
-      const categoryID = fetchedPost.categoryID;
-      const fetchedCategory = await useGetCategoriesByID(categoryID);
-      const fetchedComments = (await useGetCommentsByID(postID)) as PostComment[];
-      setPost(fetchedPost);
-      setCategory(fetchedCategory);
-      setComments(fetchedComments);
-      await sessionChecker();
-    };
-    fetchData();
-  }, []);
-
-  //Handle post delete - prevent default, delete post, redirect to home page and show toast
-  const handlePostDelete = async (e: MouseEvent<HTMLButtonElement, globalThis.MouseEvent>, postID: number) => {
-    e.preventDefault();
-    await useDeletePost({ postID });
-    toast.success('Post deleted!', {
-      theme: 'dark',
-    });
-    router.push('/');
-  };
-
-  // Handle comment delete - prevent default, delete comment, update comments and show toast
-  const handleCommentDelete = async (e: MouseEvent<HTMLButtonElement, globalThis.MouseEvent>, commentID: number) => {
-    e.preventDefault();
-    await useDeleteComment({ commentID });
-    const updatedComments = (await useGetCommentsByID(postID)) as PostComment[];
-    setComments(updatedComments);
-    toast.success('Comment deleted!', {
-      theme: 'dark',
-    });
-  };
-
-  // Handle post comment - prevent default, post comment, update comments, clear forms and show toast
-  const handlePostComment = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (!posting) {
-      setPosting(true);
-      await usePostComment({ postID, author, content, createdAt });
-      setAuthor('');
-      setContent('');
-      const updatedComments = (await useGetCommentsByID(postID)) as PostComment[];
-      setComments(updatedComments);
-      toast.success('Comment posted!', {
-        theme: 'dark',
-      });
-    }
-    setPosting(false);
-  };
+  const post = (await useGetPostByID(postID)) as Post;
+  const category = (await useGetCategoriesByID(post.categoryID)) as Category;
+  const comments = (await useGetCommentsByID(postID)) as PostComment[];
+  const session = await getServerSession(authOptions);
 
   // Function to format the date for post
   const formatDateForPost = () => {
@@ -117,20 +46,8 @@ const ViewPostAndComments = ({ params }: { params: { id: number } }) => {
 
   return (
     <div className={Style.postWrapper}>
-
       {/* If user is not logged in do not show delete post button */}
-      {session === null ? (
-        <></>
-      ) : (
-        <Button
-          className={Style.postDeleteButton}
-          variant='outline-danger'
-          type='button'
-          onClick={(e) => handlePostDelete(e, postID)}
-        >
-          Delete post
-        </Button>
-      )}
+      {session === null ? <></> : <DeletePostButton postID={post.postID} />}
 
       {/* Post display */}
       <h1 className={Style.postTitle}>{post.title}</h1>
@@ -150,7 +67,7 @@ const ViewPostAndComments = ({ params }: { params: { id: number } }) => {
         <div className={Style.postCommentsWrapper}>
           <h3>Comments</h3>
           {/* If there are comments display them, otherwise show no comments message */}
-          {comments.length < 0 ? (
+          {comments.length > 0 ? (
             comments.map((comment) => (
               <div key={comment.commentID} className={Style.postCommentWrapper}>
                 <hr />
@@ -161,19 +78,7 @@ const ViewPostAndComments = ({ params }: { params: { id: number } }) => {
                 <h4 className={Style.postCommentContent}>{comment.content}</h4>
 
                 {/* If user is not logged in do not show delete comment button */}
-                {session === null ? (
-                  <></>
-                ) : (
-                  <Button
-                    variant='outline-danger'
-                    className={Style.commentDeleteButton}
-                    size='sm'
-                    type='button'
-                    onClick={(e) => handleCommentDelete(e, comment.commentID)}
-                  >
-                    Delete comment
-                  </Button>
-                )}
+                {session === null ? <></> : <DeleteCommentButton commentID={comment.commentID}/>}
               </div>
             ))
           ) : (
@@ -181,31 +86,7 @@ const ViewPostAndComments = ({ params }: { params: { id: number } }) => {
           )}
 
           {/* Add comment form */}
-          <div>
-            <hr />
-            <form className={Style.addCommentForm} name='comment' onSubmit={(e) => handlePostComment(e)}>
-              <input
-                type='text'
-                className={Style.addCommentInput}
-                name='comment_author'
-                placeholder='Name'
-                value={author}
-                onChange={(e) => setAuthor(e.target.value)}
-                required
-              />
-              <textarea
-                className={Style.addCommentTextArea}
-                name='comment_content'
-                placeholder='Comment...'
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                required
-              />
-              <Button className={Style.addCommentButton} variant='outline-success' type='submit' disabled={posting}>
-                Add comment
-              </Button>
-            </form>
-          </div>
+          <AddComment postID={postID} />
         </div>
       </div>
     </div>

@@ -1,5 +1,3 @@
-'use client';
-
 import Style from '@/components/ViewPosts/ViewPosts.module.css';
 import useGetPosts from '@/utils/useGetPosts';
 import useGetComments from '@/utils/useGetComments';
@@ -8,39 +6,16 @@ import { Category, Post, PostComment } from '@/types/types';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from 'react-bootstrap';
-import { Session } from 'next-auth';
-import { getSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
+import { getServerSession } from 'next-auth';
 import { parseISO, format } from 'date-fns';
-import { useEffect, useState } from 'react';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 
-const ViewPosts = () => {
-  const router = useRouter();
-
-  const [posts, setPosts] = useState<Post[]>();
-  const [comments, setComments] = useState<PostComment[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [session, setSession] = useState<Session | null>(null);
-
-  // Function to check if user is logged in
-  const sessionChecker = async () => {
-    const session = await getSession();
-    setSession(session);
-  };
-
-  // Initial data fetch - set posts, comments and categories and check if user is logged in
-  useEffect(() => {
-    const fetchData = async () => {
-      const posts = await useGetPosts();
-      const comments = await useGetComments();
-      const categories = await useGetCategories();
-      setPosts(posts);
-      setComments(comments);
-      setCategories(categories);
-      sessionChecker();
-    };
-    fetchData();
-  }, []);
+const ViewPosts = async () => {
+  // Get posts, comments, categories and session
+  const posts = (await useGetPosts()) as Post[];
+  const comments = (await useGetComments()) as PostComment[];
+  const categories = (await useGetCategories()) as Category[];
+  const session = await getServerSession(authOptions);
 
   // Function to find the number of comments for a post
   const findCommentByIDReturnLength = (id: number) => {
@@ -58,7 +33,7 @@ const ViewPosts = () => {
   const formatDateForPost = (date: string, id: number) => {
     const post = posts!.find((post) => post.postID === id);
     const postDate = parseISO(post!.createdAt);
-    return format(postDate, 'dd/MM/yyyy');
+    return format(postDate, 'dd.MM.yyyy');
   };
 
   // If there are no posts, display a loading message
@@ -74,7 +49,6 @@ const ViewPosts = () => {
     <section className={Style.postsSection}>
       {posts.map((post) => (
         <div className={Style.postWrapper} key={post.postID}>
-          
           {/* Image display */}
           <Image
             src={post.imageURL}
@@ -85,6 +59,7 @@ const ViewPosts = () => {
             style={{ width: '100%', height: 'auto' }}
             priority={true}
             className={Style.postImage}
+            placeholder='empty'
           />
 
           {/* Link that takes to the specific category post view  */}
@@ -107,14 +82,11 @@ const ViewPosts = () => {
           {session === null ? (
             <></>
           ) : (
-            <Button
-              variant='outline-light'
-              className={Style.editButton}
-              type='button'
-              onClick={() => router.push(`/posts/edit/${post.postID}`, { scroll: false })}
-            >
-              Edit post
-            </Button>
+            <Link href={`/posts/edit/${post.postID}`}>
+              <Button variant='outline-light' className={Style.editButton} type='button'>
+                Edit post
+              </Button>
+            </Link>
           )}
         </div>
       ))}

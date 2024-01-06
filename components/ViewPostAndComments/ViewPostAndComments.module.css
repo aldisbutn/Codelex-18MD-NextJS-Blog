@@ -51,33 +51,6 @@
   color: #f6d2ef;
 }
 
-.commentDeleteButton,
-.addCommentButton {
-  max-width: 160px;
-}
-
-.addCommentForm {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-.addCommentInput {
-  max-width: 200px;
-}
-
-.addCommentTextArea {
-  resize: none;
-  height: 100px;
-  max-width: 1025px;
-}
-
-.postDeleteButton {
-  position: absolute;
-  right: 5px;
-  top: 67px;
-}
-
 .loadingMessage {
   position: relative;
   top: 250px;

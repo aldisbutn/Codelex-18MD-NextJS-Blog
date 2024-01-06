@@ -1,8 +1,8 @@
 const useGetComments = async () => {
   const res = await fetch(`http://localhost:3000/api/comments`, {
     next: {
-      revalidate: 60,
-    },
+      tags: ['comments']
+    }
   });
   const comments = await res.json();
   return comments;

@@ -1,0 +1,19 @@
+.addCommentForm {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.addCommentInput {
+  max-width: 200px;
+}
+
+.addCommentTextArea {
+  resize: none;
+  height: 100px;
+  max-width: 1025px;
+}
+
+.addCommentButton {
+    max-width: 160px;
+  }

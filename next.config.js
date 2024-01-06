@@ -8,7 +8,10 @@ const nextConfig = {
       },
     ],
   },
-  reactStrictMode: false
+  experimental: {
+    serverActions: true,
+  },
+  reactStrictMode: false,
 };
 
 module.exports = nextConfig;

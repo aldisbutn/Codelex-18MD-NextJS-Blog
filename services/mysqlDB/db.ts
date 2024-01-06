@@ -19,6 +19,7 @@ export default async function executeQuery({ query, values }: ExecuteQueryTypes)
     await connection.end();
     return rows;
   } catch (error) {
+    console.log(error)
     return { error };
   }
 }

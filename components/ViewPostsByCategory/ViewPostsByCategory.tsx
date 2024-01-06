@@ -1,5 +1,3 @@
-'use client';
-
 import Style from '@/components/ViewPostsByCategory/ViewPostsByCategory.module.css';
 import useGetPosts from '@/utils/useGetPosts';
 import useGetComments from '@/utils/useGetComments';
@@ -8,41 +6,19 @@ import { Category, Post, PostComment } from '@/types/types';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from 'react-bootstrap';
-import { Session } from 'next-auth';
-import { getSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
 import { format, parseISO } from 'date-fns';
-import { useEffect, useState } from 'react';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { getServerSession } from 'next-auth';
 
-const ViewPostsByCategory = ({ params }: { params: { id: number } }) => {
-  const router = useRouter();
 
+const ViewPostsByCategory = async({ params }: { params: { id: number } }) => {
   const id = params.id;
-  const [posts, setPosts] = useState<Post[]>();
-  const [comments, setComments] = useState<PostComment[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [session, setSession] = useState<Session | null>(null);
+  const posts = (await useGetPosts()) as Post[];
+  const comments = (await useGetComments()) as PostComment[];
+  const categories = (await useGetCategories()) as Category[];
+  const session = await getServerSession(authOptions);
+  const filteredPosts = posts.filter((post) => String(post.categoryID) === String(id));
 
-  // Function to check if user is logged in
-  const sessionChecker = async () => {
-    const session = await getSession();
-    setSession(session);
-  };
-
-  // Initial data fetch - set posts, comments and categories and check if user is logged in
-  useEffect(() => {
-    const fetchData = async () => {
-      const posts = await useGetPosts();
-      const comments = await useGetComments();
-      const categories = await useGetCategories();
-      const filteredPosts = posts.filter((post) => String(post.categoryID) === String(id));
-      setPosts(filteredPosts);
-      setComments(comments);
-      setCategories(categories);
-      await sessionChecker();
-    };
-    fetchData();
-  }, []);
 
   // Function to find the number of comments for a post
   const findCommentByIDReturnLength = (id: number) => {
@@ -74,7 +50,7 @@ const ViewPostsByCategory = ({ params }: { params: { id: number } }) => {
 
   return (
     <section className={Style.postsSection}>
-      {posts.map((post) => (
+      {filteredPosts.map((post) => (
         <div className={Style.postWrapper} key={post.postID}>
           {/* Image display */}
           <Image
@@ -108,14 +84,11 @@ const ViewPostsByCategory = ({ params }: { params: { id: number } }) => {
           {session === null ? (
             <></>
           ) : (
-            <Button
-              variant='outline-light'
-              className={Style.editButton}
-              type='button'
-              onClick={() => router.push(`/posts/edit/${post.postID}`, { scroll: false })}
-            >
-              Edit post
-            </Button>
+            <Link href={`/posts/edit/${post.postID}`}>
+              <Button variant='outline-light' className={Style.editButton} type='button'>
+                Edit post
+              </Button>
+            </Link>
           )}
         </div>
       ))}
