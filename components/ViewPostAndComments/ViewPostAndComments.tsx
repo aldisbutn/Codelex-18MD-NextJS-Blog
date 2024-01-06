@@ -1,14 +1,11 @@
 import Style from '@/components/ViewPostAndComments/ViewPostAndComments.module.css';
-
 import useGetCategoriesByID from '@/utils/useGetCategoriesByID';
 import useGetCommentsByID from '@/utils/useGetCommentsByID';
 import useGetPostByID from '@/utils/useGetPostByID';
 import { Category, Post, PostComment } from '@/types/types';
 import Link from 'next/link';
 import Image from 'next/image';
-
 import { format, parseISO } from 'date-fns';
-
 import AddComment from '../AddComment/AddComment';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { getServerSession } from 'next-auth';

@@ -11,7 +11,10 @@ import Navbar from '@/components/Navbar/Navbar';
 const outfit = Outfit({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Blog by Aldis',
+  title: {
+    template: '%s | Aldis Blog',
+    absolute: 'Aldis Blog',
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

@@ -10,7 +10,6 @@ import { format, parseISO } from 'date-fns';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { getServerSession } from 'next-auth';
 
-
 const ViewPostsByCategory = async({ params }: { params: { id: number } }) => {
   const id = params.id;
   const posts = (await useGetPosts()) as Post[];
@@ -18,7 +17,6 @@ const ViewPostsByCategory = async({ params }: { params: { id: number } }) => {
   const categories = (await useGetCategories()) as Category[];
   const session = await getServerSession(authOptions);
   const filteredPosts = posts.filter((post) => String(post.categoryID) === String(id));
-
 
   // Function to find the number of comments for a post
   const findCommentByIDReturnLength = (id: number) => {

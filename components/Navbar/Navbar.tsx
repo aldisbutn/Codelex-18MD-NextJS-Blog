@@ -29,6 +29,11 @@ const Navbar = async () => {
                   </Link>
                 </li>
                 <li>
+                  <Link href='/posts/category/2' className={Style.navbarLink}>
+                    Music
+                  </Link>
+                </li>
+                <li>
                   <Link href='/posts/category/3' className={Style.navbarLink}>
                     Racing
                   </Link>

@@ -7,7 +7,6 @@ import usePostComment from '@/utils/usePostComment';
 import { toast } from 'react-toastify';
 import revalidateTagAction from '@/app/actions';
 
-
 const AddComment =  ({ postID }: { postID: number }) => {
   const [author, setAuthor] = useState('');
   const [content, setContent] = useState('');
